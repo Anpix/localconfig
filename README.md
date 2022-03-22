@@ -7,3 +7,8 @@ Localhost configurations
 * Root Password: localhost
 * PhpMyAdmin port: 8088
 
+## Redis
+- Hostname: redis
+- Port: 6379
+- Commander Port: 8081
+- Manager Port: 16379

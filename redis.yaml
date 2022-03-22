@@ -1,0 +1,39 @@
+version: '3.1'
+
+services:
+
+  redis:
+    container_name: redis
+    hostname: redis
+    image: redis
+    command: --save 60 1 --loglevel warning
+    restart: always
+    ports:
+      - 6379:6379
+
+  redis-commander:
+    container_name: redis-commander
+    hostname: redis-commander
+    depends_on:
+    - redis
+    image: rediscommander/redis-commander:latest
+    restart: always
+    environment:
+    - REDIS_HOSTS=local:redis:6379
+    ports:
+    - "8081:8081"
+
+  redis-manager:
+    container_name: redis-manager
+    hostname: redis-manager
+    depends_on:
+    - redis
+    image: lukiya/redismanager:latest
+    restart: always
+    ports:
+    - "16379:16379"
+    volumes:
+      - redis-manager:/app:rw
+
+volumes:
+  redis-manager:
