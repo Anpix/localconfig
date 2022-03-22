@@ -1,5 +1,5 @@
-# localconfig
-Localhost configurations
+# Configurações Locais
+Este projeto ajuda na configuração de ambientes locais
 
 ## MySQL
 * Hostname: mysql
