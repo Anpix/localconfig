@@ -7,6 +7,11 @@ Localhost configurations
 * Root Password: localhost
 * PhpMyAdmin port: 8088
 
+## SqlServer
+- Hostname: sqlserver
+- Port: 1433
+- SA Password: Localh0$t
+
 ## Redis
 - Hostname: redis
 - Port: 6379

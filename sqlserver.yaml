@@ -1,0 +1,25 @@
+# Use root/example as user/password credentials
+version: '3.1'
+
+services:
+
+  sqlserver:
+    container_name: sqlserver
+    hostname: sqlserver
+    image: mcr.microsoft.com/mssql/server:2019-latest
+    restart: always
+    user: root
+    ports:
+      - 1433:1433
+    environment:
+      ACCEPT_EULA: 'Y'
+      MSSQL_SA_PASSWORD: 'L0c@lh0st'
+    volumes:
+      - sqlserver-data:/var/opt/mssql/data:rw
+      - sqlserver-log:/var/opt/mssql/log:rw
+      - sqlserver-secrets:/var/opt/mssql/secrets:rw
+
+volumes:
+  sqlserver-data:
+  sqlserver-log:
+  sqlserver-secrets:

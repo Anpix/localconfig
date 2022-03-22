@@ -1,0 +1,1 @@
+docker-compose -f sqlserver.yaml -p sqlserver up -d
