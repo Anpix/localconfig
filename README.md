@@ -2,6 +2,13 @@
 
 Este projeto ajuda na configuração de ambientes locais
 
+## Kafka
+
+`docker-compose -f kafka.yaml -p kafka up -d`
+
+- Hostname: kafka
+- Port: 9021
+
 ## MySQL
 
 `docker-compose -f mysql.yaml -p mysql up -d`
