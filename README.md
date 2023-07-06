@@ -62,3 +62,10 @@ Don't forget to give access to this db for the user `keycloak` with the password
 - Port: 8080
 - User: admin
 - Password: admin
+
+## Operational Systems
+
+### Kali Linux
+
+`docker-compose -f kali.yaml -p kali up -d`
+

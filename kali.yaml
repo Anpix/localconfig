@@ -1,0 +1,11 @@
+version: '3.2'
+
+services:
+
+  kali:
+    container_name: kali
+    hostname: kali
+    image: kalilinux/kali-rolling
+    ports:
+      - 3500:3500
+      
