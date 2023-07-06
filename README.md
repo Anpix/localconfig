@@ -13,6 +13,17 @@ Este projeto ajuda na configuração de ambientes locais
 - Root Password: localhost
 - PhpMyAdmin port: 8088
 
+### PostgreSQL
+
+`docker-compose -f postgres.yaml -p postgres up -d`
+
+- Hostname: postgres
+- Port: 5432
+- Default User: postgres
+- Default Pass: postgres
+- Adminer port: 8080
+- PgAdmin port: 8081
+
 ### Redis
 
 `docker-compose -f redis.yaml -p redis up -d`
