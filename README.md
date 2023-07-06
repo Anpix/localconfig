@@ -49,3 +49,16 @@ Este projeto ajuda na configuração de ambientes locais
 
 - Hostname: kafka
 - Port: 9021
+
+### Keycloak
+
+This keycloak configuration depends of an instance of SQL Server.
+After you created a server, create a database called `keycloak`.
+Don't forget to give access to this db for the user `keycloak` with the password `keycloak`.
+
+`docker-compose -f keycloak.yaml -p keycloak up -d`
+
+- Hostname: keycloak
+- Port: 8080
+- User: admin
+- Password: admin

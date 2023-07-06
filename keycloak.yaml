@@ -1,0 +1,38 @@
+version: "3.2"
+
+services:
+
+  mssqlscripts:
+    container_name: initial_scripts
+    image: mcr.microsoft.com/mssql-tools
+    #command:  until /opt/mssql-tools/bin/sqlcmd -S sqlserver -U sa -P "L0c@lh0st" -Q "CREATE DATABASE keycloak"; do sleep 5; done'
+    
+    command:
+      - /bin/bash
+      - -c
+      - /opt/mssql-tools/bin/sqlcmd -S sqlserver -U sa -P "L0c@lh0st" -Q "IF NOT EXISTS(SELECT principal_id FROM sys.server_principals WHERE name = '"'"'keycloak'"'"') BEGIN CREATE LOGIN keycloak WITH PASSWORD = '"'"'Keycl0@k'"'"' END IF NOT EXISTS(SELECT 1 FROM sys.databases WHERE name = '"'"'keycloak'"'"') BEGIN CREATE DATABASE keycloak END USE keycloak GO EXEC SP_GRANTDBACCESS keycloak"
+    networks:
+      - databases
+
+
+  keycloak:
+    container_name: keycloak
+    hostname: keycloak
+    image: quay.io/keycloak/keycloak:legacy
+    ports:
+      - "8080:8080"
+    environment:
+      - KEYCLOAK_USER=admin
+      - KEYCLOAK_PASSWORD=admin
+      - DB_VENDOR=mssql
+      - DB_USER=keycloak
+      - DB_PASSWORD=Keycl0@k
+      - DB_ADDR=sqlserver
+      - DB_DATABASE=keycloak
+    networks:
+      - databases
+
+networks:
+  databases:
+    name: databases
+    external: true
