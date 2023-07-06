@@ -2,14 +2,9 @@
 
 Este projeto ajuda na configuração de ambientes locais
 
-## Kafka
+## Databases
 
-`docker-compose -f kafka.yaml -p kafka up -d`
-
-- Hostname: kafka
-- Port: 9021
-
-## MySQL
+### MySQL
 
 `docker-compose -f mysql.yaml -p mysql up -d`
 
@@ -18,7 +13,7 @@ Este projeto ajuda na configuração de ambientes locais
 - Root Password: localhost
 - PhpMyAdmin port: 8088
 
-## Redis
+### Redis
 
 `docker-compose -f redis.yaml -p redis up -d`
 
@@ -27,10 +22,19 @@ Este projeto ajuda na configuração de ambientes locais
 - Commander Port: 8081
 - Manager Port: 16379
 
-## SqlServer
+### SqlServer
 
 `docker-compose -f sqlserver.yaml -p sqlserver up -d`
 
 - Hostname: sqlserver
 - Port: 1433
-- SA Password: Localh0$t
+- SA Password: L0c@lh0st
+
+## Services
+
+### Kafka
+
+`docker-compose -f kafka.yaml -p kafka up -d`
+
+- Hostname: kafka
+- Port: 9021

@@ -14,12 +14,20 @@ services:
     environment:
       ACCEPT_EULA: 'Y'
       MSSQL_SA_PASSWORD: 'L0c@lh0st'
+      MSSQL_PID: 'Developer'
     volumes:
       - sqlserver-data:/var/opt/mssql/data:rw
       - sqlserver-log:/var/opt/mssql/log:rw
       - sqlserver-secrets:/var/opt/mssql/secrets:rw
+    networks:
+      - databases
 
 volumes:
   sqlserver-data:
   sqlserver-log:
   sqlserver-secrets:
+
+networks:
+  databases:
+    name: databases
+    driver: bridge
