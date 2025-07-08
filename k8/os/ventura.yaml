@@ -1,0 +1,66 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: ventura
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ventura
+  namespace: ventura
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ventura
+  template:
+    metadata:
+      labels:
+        app: ventura
+    spec:
+      containers:
+        - name: ventura
+          image: sickcodes/docker-osx:ventura
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 10022
+            - containerPort: 50922
+          env:
+            - name: DISPLAY
+              value: ":0.0"
+            - name: GENERATE_UNIQUE
+              value: "true"
+            - name: MASTER_PLIST_URL
+              value: "https://raw.githubusercontent.com/sickcodes/osx-serial-generator/master/config-custom.plist"
+          volumeMounts:
+            - name: x11-unix
+              mountPath: /tmp/.X11-unix
+          resources:
+            requests:
+              memory: 1Gi
+              cpu: 500m
+            limits:
+              memory: 4Gi
+              cpu: 2000m
+      volumes:
+        - name: x11-unix
+          hostPath:
+            path: /tmp/.X11-unix
+            type: Directory
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: ventura
+  namespace: ventura
+spec:
+  type: NodePort
+  selector:
+    app: ventura
+  ports:
+    - port: 10022
+      targetPort: 10022
+      nodePort: 33022
+    - port: 50922
+      targetPort: 50922
+      nodePort: 37022

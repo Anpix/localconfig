@@ -1,5 +1,3 @@
-version: '3.9'
-
 services:
 
   postgres:
@@ -9,7 +7,7 @@ services:
     volumes:
       - /dev/db/postgres:/var/lib/postgresql/data # mkdir postgres_db_data before docker compose up
     ports:
-      - 15432:5432
+      - 5432:5432
     environment:
       POSTGRES_DB: postgres
       POSTGRES_USER: postgres

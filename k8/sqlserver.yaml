@@ -1,0 +1,107 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: sqlserver
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: sqlserver-data-pvc
+  namespace: sqlserver
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 5Gi
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: sqlserver-log-pvc
+  namespace: sqlserver
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 2Gi
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: sqlserver-secrets-pvc
+  namespace: sqlserver
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: sqlserver
+  namespace: sqlserver
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: sqlserver
+  template:
+    metadata:
+      labels:
+        app: sqlserver
+    spec:
+      containers:
+        - name: sqlserver
+          image: mcr.microsoft.com/mssql/server:2019-latest
+          imagePullPolicy: IfNotPresent
+          resources:
+            requests:
+              memory: 2Gi
+              cpu: 500m
+            limits:
+              memory: 4Gi
+              cpu: 2
+          ports:
+            - containerPort: 1433
+          env:
+            - name: ACCEPT_EULA
+              value: "Y"
+            - name: MSSQL_SA_PASSWORD
+              value: "L0c@lh0st"
+            - name: MSSQL_PID
+              value: "Developer"
+          volumeMounts:
+            - name: sqlserver-data
+              mountPath: /var/opt/mssql/data
+            - name: sqlserver-log
+              mountPath: /var/opt/mssql/log
+            - name: sqlserver-secrets
+              mountPath: /var/opt/mssql/secrets
+      volumes:
+        - name: sqlserver-data
+          persistentVolumeClaim:
+            claimName: sqlserver-data-pvc
+        - name: sqlserver-log
+          persistentVolumeClaim:
+            claimName: sqlserver-log-pvc
+        - name: sqlserver-secrets
+          persistentVolumeClaim:
+            claimName: sqlserver-secrets-pvc
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: sqlserver
+  namespace: sqlserver
+spec:
+  type: NodePort
+  selector:
+    app: sqlserver
+  ports:
+    - port: 1433
+      targetPort: 1433
+      nodePort: 31433
