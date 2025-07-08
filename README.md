@@ -10,13 +10,13 @@ Este projeto ajuda na configuração de ambientes locais
 - Port: 1433
 - SA Password: L0c@lh0st
 
-[Kubernetes](.\k8\sqlserver.yaml)
+[Kubernetes](k8/sqlserver.yaml)
 
 ```sh
 kubectl apply -f .\k8\sqlserver.yaml
 ```
 
-[Docker](.\docker\sqlserver.yaml)
+[Docker](docker/sqlserver.yaml)
 
 ```sh
 docker-compose -f .\docker\sqlserver.yaml -p sqlserver up -d
@@ -30,13 +30,13 @@ docker-compose -f .\docker\sqlserver.yaml -p sqlserver up -d
 - Default Pass: postgres
 - PgAdmin port: 8081
 
-[Kubernetes](.\k8\postgres.yaml)
+[Kubernetes](k8/postgres.yaml)
 
 ```sh
 kubectl apply -f .\k8\postgres.yaml
 ```
 
-[Docker](.\docker\postgres.yaml)
+[Docker](docker/postgres.yaml)
 
 ```sh
 docker-compose -f .\docker\postgres.yaml -p postgres up -d
@@ -49,13 +49,13 @@ docker-compose -f .\docker\postgres.yaml -p postgres up -d
 - Root Password: localhost
 - PhpMyAdmin port: 8088
 
-[Kubernetes](.\k8\mysql.yaml)
+[Kubernetes](k8/mysql.yaml)
 
 ```sh
 kubectl apply -f .\k8\mysql.yaml
 ```
 
-[Docker](.\docker\mysql.yaml)
+[Docker](docker/mysql.yaml)
 
 ```sh
 docker-compose -f .\docker\mysql.yaml -p mysql up -d
@@ -68,13 +68,13 @@ docker-compose -f .\docker\mysql.yaml -p mysql up -d
 - Commander Port: 8081
 - Manager Port: 16379
 
-[Kubernetes](.\k8\redis.yaml)
+[Kubernetes](k8\redis.yaml)
 
 ```sh
 kubectl apply -f .\k8\redis.yaml
 ```
 
-[Docker](.\docker\redis.yaml)
+[Docker](docker\redis.yaml)
 
 ```sh
 docker-compose -f .\docker\redis.yaml -p redis up -d
@@ -87,13 +87,13 @@ docker-compose -f .\docker\redis.yaml -p redis up -d
 - User: mongodb
 - Password: mongodb
 
-[Kubernetes](.\k8\mongodb.yaml)
+[Kubernetes](k8/mongodb.yaml)
 
 ```sh
 kubectl apply -f .\k8\mongodb.yaml
 ```
 
-[Docker](.\docker\mongodb.yaml)
+[Docker](docker/mongodb.yaml)
 
 ```sh
 docker-compose -f .\docker\mongodb.yaml -p mongodb up -d
@@ -106,13 +106,13 @@ docker-compose -f .\docker\mongodb.yaml -p mongodb up -d
 - Hostname: kafka
 - Port: 9021
 
-[Kubernetes](.\k8\kafka.yaml)
+[Kubernetes](k8/kafka.yaml)
 
 ```sh
 kubectl apply -f .\k8\kafka.yaml
 ```
 
-[Docker](.\docker\kafka.yaml)
+[Docker](docker/kafka.yaml)
 
 ```sh
 docker-compose -f .\docker\kafka.yaml -p kafka up -d
@@ -129,13 +129,13 @@ Don't forget to give access to this db for the user `keycloak` with the password
 - User: admin
 - Password: admin
 
-[Kubernetes](.\k8\keycloak.yaml)
+[Kubernetes](k8/keycloak.yaml)
 
 ```sh
 kubectl apply -f .\k8\keycloak.yaml
 ```
 
-[Docker](.\docker\keycloak.yaml)
+[Docker](docker/keycloak.yaml)
 
 ```sh
 docker-compose -f .\docker\keycloak.yaml -p keycloak up -d
@@ -145,13 +145,13 @@ docker-compose -f .\docker\keycloak.yaml -p keycloak up -d
 
 ### Kali Linux
 
-[Kubernetes](.\k8\os\kali.yaml)
+[Kubernetes](k8/os\kali.yaml)
 
 ```sh
 kubectl apply -f .\k8\os\kali.yaml
 ```
 
-[Docker](.\docker\kali.yaml)
+[Docker](docker/kali.yaml)
 
 ```sh
 docker-compose -f .\docker\kali.yaml -p kali up -d
@@ -159,13 +159,13 @@ docker-compose -f .\docker\kali.yaml -p kali up -d
 
 ### MacOSX
 
-[Kubernetes](.\k8\os\macosx.yaml)
+[Kubernetes](k8/os\macosx.yaml)
 
 ```sh
 kubectl apply -f .\k8\os\macosx.yaml
 ```
 
-[Docker](.\docker\macosx.yaml)
+[Docker](docker/macosx.yaml)
 
 ```sh
 docker run -it --device /dev/kvm -p 50922:10022 -v /tmp/.X11-unix:/tmp/.X11-unix -e "DISPLAY=${DISPLAY:-:0.0}" sickcodes/docker-osx:auto
@@ -173,13 +173,13 @@ docker run -it --device /dev/kvm -p 50922:10022 -v /tmp/.X11-unix:/tmp/.X11-unix
 
 #### Catalina
 
-[Kubernetes](.\k8\os\catalina.yaml)
+[Kubernetes](k8/os\catalina.yaml)
 
 ```sh
 kubectl apply -f .\k8\os\catalina.yaml
 ```
 
-[Docker](.\docker\catalina.yaml)
+[Docker](docker/catalina.yaml)
 
 ```sh
 docker run -it --device /dev/snd -p 50922:10022 -v /tmp/.X11-unix:/tmp/.X11-unix -e "DISPLAY=${DISPLAY:-:0.0}" sickcodes/docker-osx:latest
@@ -191,13 +191,13 @@ docker build -t docker-osx .
 
 #### Ventura
 
-[Kubernetes](.\k8\os\ventura.yaml)
+[Kubernetes](k8/os\ventura.yaml)
 
 ```sh
 kubectl apply -f .\k8\os\ventura.yaml
 ```
 
-[Docker](.\docker\ventura.yaml)
+[Docker](docker/ventura.yaml)
 
 ```sh
 docker run -it --name MacOS-Ventura --device /dev/kvm -p 50922:10022 -v /tmp/.X11-unix:/tmp/.X11-unix -e "DISPLAY=${DISPLAY:-:0.0}" -e GENERATE_UNIQUE=true -e MASTER_PLIST_URL='https://raw.githubusercontent.com/sickcodes/osx-serial-generator/master/config-custom.plist' sickcodes/docker-osx:ventura
@@ -211,13 +211,13 @@ docker build -t docker-osx --build-arg SHORTNAME=ventura .
 
 ### Cloudflared
 
-[Kubernetes](.\k8\cloudflared.yaml)
+[Kubernetes](k8/cloudflared.yaml)
 
 ```sh
 kubectl apply -f .\k8\cloudflared.yaml
 ```
 
-[Docker](.\docker\cloudflare.yaml)
+[Docker](docker/cloudflare.yaml)
 
 ```sh
 docker-compose -f .\docker\cloudflare.yaml -p cloudflare up -d
