@@ -80,6 +80,25 @@ kubectl apply -f .\k8\redis.yaml
 docker-compose -f .\docker\redis.yaml -p redis up -d
 ```
 
+### MongoDB
+
+- Hostname: mongodb
+- Port: 27017
+- User: mongodb
+- Password: mongodb
+
+[Kubernetes](.\k8\mongodb.yaml)
+
+```sh
+kubectl apply -f .\k8\mongodb.yaml
+```
+
+[Docker](.\docker\mongodb.yaml)
+
+```sh
+docker-compose -f .\docker\mongodb.yaml -p mongodb up -d
+```
+
 ## Services
 
 ### Kafka
