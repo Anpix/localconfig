@@ -53,8 +53,10 @@ spec:
     app: kafka
   ports:
     - port: 9092
+      name: "9092"
       targetPort: 9092
       nodePort: 30992
     - port: 9021
+      name: "9021"
       targetPort: 9021
       nodePort: 30921
