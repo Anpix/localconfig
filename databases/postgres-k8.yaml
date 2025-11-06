@@ -3,12 +3,48 @@ kind: Namespace
 metadata:
   name: postgres
 ---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: postgres-data-pv
+spec:
+  capacity:
+    storage: 5Gi
+  accessModes:
+    - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: postgres-local
+  hostPath:
+    path: /mnt/c/rancher-data/postgres/data
+    type: DirectoryOrCreate
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: postgres-secret
+  namespace: postgres
+type: Opaque
+stringData:
+  POSTGRES_PASSWORD: 'postgres'
+  PGADMIN_PASSWORD: 'localhost'
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: postgres-config
+  namespace: postgres
+data:
+  POSTGRES_DB: 'postgres'
+  POSTGRES_USER: 'postgres'
+  TZ: 'America/Sao_Paulo'
+---
 apiVersion: apps/v1
-kind: Deployment
+kind: StatefulSet
 metadata:
   name: postgres
   namespace: postgres
 spec:
+  serviceName: postgres-headless
   replicas: 1
   selector:
     matchLabels:
@@ -20,32 +56,99 @@ spec:
     spec:
       containers:
         - name: postgres-db
-          image: postgres:latest
+          image: postgres:16
           imagePullPolicy: IfNotPresent
           resources:
             requests:
-              memory: 128Mi
-              cpu: 100m
+              memory: 256Mi
+              cpu: 200m
             limits:
               memory: 1Gi
-              cpu: 500m
+              cpu: 1
           ports:
-            - containerPort: 5432
-              hostPort: 5432
+            - name: postgres
+              containerPort: 5432
+              protocol: TCP
           env:
             - name: POSTGRES_DB
-              value: "postgres"
+              valueFrom:
+                configMapKeyRef:
+                  name: postgres-config
+                  key: POSTGRES_DB
             - name: POSTGRES_USER
-              value: "postgres"
+              valueFrom:
+                configMapKeyRef:
+                  name: postgres-config
+                  key: POSTGRES_USER
             - name: POSTGRES_PASSWORD
-              value: "postgres"
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-secret
+                  key: POSTGRES_PASSWORD
+            - name: TZ
+              valueFrom:
+                configMapKeyRef:
+                  name: postgres-config
+                  key: TZ
+            - name: PGDATA
+              value: /var/lib/postgresql/data/pgdata
           volumeMounts:
-            - name: postgres-storage
+            - name: postgres-data
               mountPath: /var/lib/postgresql/data
-      volumes:
-        - name: postgres-storage
-          persistentVolumeClaim:
-            claimName: postgres-pvc
+          startupProbe:
+            exec:
+              command:
+                - /bin/sh
+                - -c
+                - pg_isready -U postgres
+            initialDelaySeconds: 10
+            periodSeconds: 5
+            timeoutSeconds: 3
+            failureThreshold: 30
+          livenessProbe:
+            exec:
+              command:
+                - /bin/sh
+                - -c
+                - pg_isready -U postgres
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 3
+          readinessProbe:
+            exec:
+              command:
+                - /bin/sh
+                - -c
+                - pg_isready -U postgres
+            initialDelaySeconds: 10
+            periodSeconds: 5
+            timeoutSeconds: 3
+            failureThreshold: 3
+  volumeClaimTemplates:
+    - metadata:
+        name: postgres-data
+      spec:
+        accessModes:
+          - ReadWriteOnce
+        storageClassName: postgres-local
+        resources:
+          requests:
+            storage: 5Gi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: postgres-headless
+  namespace: postgres
+spec:
+  clusterIP: None
+  selector:
+    app: postgres-db
+  ports:
+    - name: postgres
+      port: 5432
+      targetPort: 5432
 ---
 apiVersion: v1
 kind: Service
@@ -53,13 +156,14 @@ metadata:
   name: postgres
   namespace: postgres
 spec:
-  type: NodePort
+  type: LoadBalancer
   selector:
     app: postgres-db
   ports:
-    - port: 5432
+    - name: postgres
+      port: 5432
       targetPort: 5432
-      nodePort: 30432
+      protocol: TCP
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -82,28 +186,51 @@ spec:
           imagePullPolicy: IfNotPresent
           resources:
             requests:
-              memory: 128Mi
+              memory: 256Mi
               cpu: 100m
             limits:
               memory: 1Gi
               cpu: 500m
           ports:
-            - containerPort: 80
-              hostPort: 8081
+            - name: http
+              containerPort: 80
+              protocol: TCP
           env:
             - name: PGADMIN_DEFAULT_EMAIL
-              value: "localhost@anpix.com.br"
+              value: 'localhost@anpix.com.br'
             - name: PGADMIN_DEFAULT_PASSWORD
-              value: "localhost"
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-secret
+                  key: PGADMIN_PASSWORD
+          readinessProbe:
+            httpGet:
+              path: /misc/ping
+              port: 80
+            initialDelaySeconds: 10
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 3
+          livenessProbe:
+            httpGet:
+              path: /misc/ping
+              port: 80
+            initialDelaySeconds: 30
+            periodSeconds: 30
+            timeoutSeconds: 5
+            failureThreshold: 3
 ---
 apiVersion: v1
-kind: PersistentVolumeClaim
+kind: Service
 metadata:
-  name: postgres-pvc
+  name: pgadmin
   namespace: postgres
 spec:
-  accessModes:
-    - ReadWriteOnce
-  resources:
-    requests:
-      storage: 1Gi
+  type: LoadBalancer
+  selector:
+    app: pgadmin
+  ports:
+    - name: http
+      port: 8081
+      targetPort: 80
+      protocol: TCP

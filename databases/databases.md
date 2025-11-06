@@ -47,7 +47,7 @@ docker cp sqlserver:/var/opt/mssql/data/. .
 [Kubernetes](postgres-k8.yaml)
 
 ```sh
-kubectl apply -f .\postgres-k8.yaml
+kubectl apply -f .\databases\postgres-k8.yaml
 ```
 
 [Docker](postgres-docker.yaml)
