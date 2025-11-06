@@ -10,6 +10,16 @@
 
 [Kubernetes](sqlserver-k8.yaml)
 
+Using WSL run the following commands to create a folder and grant permissions
+
+```sh
+sudo mkdir -p /mnt/c/rancher-data/sqlserver/{data,log,secrets}
+sudo chown -R 10001:0 /mnt/c/rancher-data/sqlserver
+sudo chmod -R 777 /mnt/c/rancher-data/sqlserver
+```
+
+Apply the YAML
+
 ```sh
 kubectl apply -f .\sqlserver-k8.yaml
 ```
@@ -18,6 +28,12 @@ kubectl apply -f .\sqlserver-k8.yaml
 
 ```sh
 docker-compose -f .\sqlserver-docker.yaml -p sqlserver up -d
+```
+
+This is the command to copy the backup files from the container:
+
+```sh
+docker cp sqlserver:/var/opt/mssql/data/. .
 ```
 
 ### Postgres

@@ -4,47 +4,75 @@ metadata:
   name: sqlserver
 ---
 apiVersion: v1
-kind: PersistentVolumeClaim
+kind: PersistentVolume
 metadata:
-  name: sqlserver-data-pvc
-  namespace: sqlserver
+  name: sqlserver-data-pv
 spec:
+  capacity:
+    storage: 10Gi
   accessModes:
     - ReadWriteOnce
-  resources:
-    requests:
-      storage: 5Gi
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: sqlserver-local
+  hostPath:
+    path: /mnt/c/rancher-data/sqlserver/data
+    type: DirectoryOrCreate
 ---
 apiVersion: v1
-kind: PersistentVolumeClaim
+kind: PersistentVolume
 metadata:
-  name: sqlserver-log-pvc
-  namespace: sqlserver
+  name: sqlserver-log-pv
 spec:
+  capacity:
+    storage: 5Gi
   accessModes:
     - ReadWriteOnce
-  resources:
-    requests:
-      storage: 2Gi
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: sqlserver-local
+  hostPath:
+    path: /mnt/c/rancher-data/sqlserver/log
+    type: DirectoryOrCreate
 ---
 apiVersion: v1
-kind: PersistentVolumeClaim
+kind: PersistentVolume
 metadata:
-  name: sqlserver-secrets-pvc
-  namespace: sqlserver
+  name: sqlserver-secrets-pv
 spec:
+  capacity:
+    storage: 1Gi
   accessModes:
     - ReadWriteOnce
-  resources:
-    requests:
-      storage: 1Gi
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: sqlserver-local
+  hostPath:
+    path: /mnt/c/rancher-data/sqlserver/secrets
+    type: DirectoryOrCreate
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: sqlserver-secret
+  namespace: sqlserver
+type: Opaque
+stringData:
+  SA_PASSWORD: 'L0c@lh0st'
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: sqlserver-config
+  namespace: sqlserver
+data:
+  MSSQL_COLLATION: 'Latin1_General_CI_AS'
+  TZ: 'America/Sao_Paulo'
 ---
 apiVersion: apps/v1
-kind: Deployment
+kind: StatefulSet
 metadata:
   name: sqlserver
   namespace: sqlserver
 spec:
+  serviceName: sqlserver-headless
   replicas: 1
   selector:
     matchLabels:
@@ -54,9 +82,11 @@ spec:
       labels:
         app: sqlserver
     spec:
+      securityContext:
+        fsGroup: 10001
       containers:
         - name: sqlserver
-          image: mcr.microsoft.com/mssql/server:2019-latest
+          image: mcr.microsoft.com/mssql/server:2022-latest
           imagePullPolicy: IfNotPresent
           resources:
             requests:
@@ -64,16 +94,31 @@ spec:
               cpu: 500m
             limits:
               memory: 4Gi
-              cpu: 2
+              cpu: '2'
           ports:
-            - containerPort: 1433
+            - name: sql
+              containerPort: 1433
+              protocol: TCP
           env:
             - name: ACCEPT_EULA
-              value: "Y"
+              value: 'Y'
             - name: MSSQL_SA_PASSWORD
-              value: "L0c@lh0st"
+              valueFrom:
+                secretKeyRef:
+                  name: sqlserver-secret
+                  key: SA_PASSWORD
             - name: MSSQL_PID
-              value: "Developer"
+              value: 'Express'
+            - name: MSSQL_COLLATION
+              valueFrom:
+                configMapKeyRef:
+                  name: sqlserver-config
+                  key: MSSQL_COLLATION
+            - name: TZ
+              valueFrom:
+                configMapKeyRef:
+                  name: sqlserver-config
+                  key: TZ
           volumeMounts:
             - name: sqlserver-data
               mountPath: /var/opt/mssql/data
@@ -81,16 +126,69 @@ spec:
               mountPath: /var/opt/mssql/log
             - name: sqlserver-secrets
               mountPath: /var/opt/mssql/secrets
-      volumes:
-        - name: sqlserver-data
-          persistentVolumeClaim:
-            claimName: sqlserver-data-pvc
-        - name: sqlserver-log
-          persistentVolumeClaim:
-            claimName: sqlserver-log-pvc
-        - name: sqlserver-secrets
-          persistentVolumeClaim:
-            claimName: sqlserver-secrets-pvc
+          startupProbe:
+            tcpSocket:
+              port: 1433
+            initialDelaySeconds: 15
+            periodSeconds: 5
+            timeoutSeconds: 3
+            failureThreshold: 30
+          livenessProbe:
+            tcpSocket:
+              port: 1433
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 3
+          readinessProbe:
+            tcpSocket:
+              port: 1433
+            initialDelaySeconds: 10
+            periodSeconds: 5
+            timeoutSeconds: 3
+            failureThreshold: 3
+  volumeClaimTemplates:
+    - metadata:
+        name: sqlserver-data
+      spec:
+        accessModes:
+          - ReadWriteOnce
+        storageClassName: sqlserver-local
+        resources:
+          requests:
+            storage: 10Gi
+    - metadata:
+        name: sqlserver-log
+      spec:
+        accessModes:
+          - ReadWriteOnce
+        storageClassName: sqlserver-local
+        resources:
+          requests:
+            storage: 5Gi
+    - metadata:
+        name: sqlserver-secrets
+      spec:
+        accessModes:
+          - ReadWriteOnce
+        storageClassName: sqlserver-local
+        resources:
+          requests:
+            storage: 1Gi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: sqlserver-headless
+  namespace: sqlserver
+spec:
+  clusterIP: None
+  selector:
+    app: sqlserver
+  ports:
+    - name: sql
+      port: 1433
+      targetPort: 1433
 ---
 apiVersion: v1
 kind: Service
@@ -98,10 +196,11 @@ metadata:
   name: sqlserver
   namespace: sqlserver
 spec:
-  type: NodePort
+  type: LoadBalancer
   selector:
     app: sqlserver
   ports:
-    - port: 1433
+    - name: sql
+      port: 1433
       targetPort: 1433
-      nodePort: 31433
+      protocol: TCP
