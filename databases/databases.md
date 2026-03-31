@@ -96,6 +96,10 @@ kubectl apply -f .\mongodb-k8.yaml
 docker-compose -f .\mongodb-docker.yaml -p mongodb up -d
 ```
 
+**Clients:**
+
+- [Studio3T Free](https://studio3t.com/free/)
+
 ### Redis
 
 - Hostname: redis
