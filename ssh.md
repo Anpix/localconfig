@@ -4,6 +4,12 @@ Instructions to create, manage and use SSH keys.
 
 ## Generating a new key
 
+- Go to your SSH folder, where you want to save the ssh key.
+
+```sh
+cd ~/.ssh
+```
+
 - Run the following command, replacing the `FILENAME` text with the filename which to save the key:
 
 ```sh
