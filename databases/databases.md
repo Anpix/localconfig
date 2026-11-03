@@ -44,16 +44,21 @@ docker cp sqlserver:/var/opt/mssql/data/. .
 - Default Pass: postgres
 - PgAdmin port: 8081
 
+To register the server in PgAdmin:
+
+- Kubernetes (PgAdmin runs in the same `postgres` namespace): use the Service DNS `postgres.postgres.svc.cluster.local` (or just `postgres`). The format is `<service>.<namespace>.svc.cluster.local`.
+- Docker, or PgAdmin outside the cluster: use `host.docker.internal` (Rancher Desktop also accepts `host.rancher-desktop.internal`), which points to the host machine where port 5432 is exposed.
+
 [Kubernetes](postgres-k8.yaml)
 
 ```sh
-kubectl apply -f .\databases\postgres-k8.yaml
+kubectl apply -f ./databases/postgres-k8.yaml
 ```
 
 [Docker](postgres-docker.yaml)
 
 ```sh
-docker-compose -f .\postgres-docker.yaml -p postgres up -d
+docker-compose -f ./postgres-docker.yaml -p postgres up -d
 ```
 
 ### MySQL
@@ -110,7 +115,7 @@ docker-compose -f .\mongodb-docker.yaml -p mongodb up -d
 [Kubernetes](redis-k8.yaml)
 
 ```sh
-kubectl apply -f .\redis-k8.yaml
+kubectl apply -f ./databases/redis-k8.yaml
 ```
 
 [Docker](redis-docker.yaml)
