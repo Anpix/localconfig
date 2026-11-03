@@ -35,7 +35,7 @@ spec:
           image: redis:latest
           imagePullPolicy: IfNotPresent
           command:
-            ["redis-server", "--save", "60", "1", "--loglevel", "warning"]
+            ['redis-server', '--save', '60', '1', '--loglevel', 'warning']
           resources:
             requests:
               memory: 128Mi
@@ -59,13 +59,12 @@ metadata:
   name: redis
   namespace: redis
 spec:
-  type: NodePort
+  type: LoadBalancer
   selector:
     app: redis
   ports:
     - port: 6379
       targetPort: 6379
-      nodePort: 30379
 ---
 apiVersion: apps/v1
 kind: Deployment
